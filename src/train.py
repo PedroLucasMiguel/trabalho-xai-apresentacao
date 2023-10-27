@@ -69,10 +69,11 @@ def train(model:nn.Module,
       
       # Definindo e criando (se necessário) a pasta para armazenar os dados de saída
       # da aplicação
-      output_folder = f"../output/{model.__class__.__name__}"
+      output_folder = os.path.join("..", "output", model.__class__.__name__)
 
       try:
             #os.mkdir("../output")
+            os.mkdir(os.path.join("..", "output"))
             os.mkdir(output_folder)
       except OSError as _:
             files_on_dir = os.listdir(output_folder)

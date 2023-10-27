@@ -3,6 +3,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch import Tensor
 
+from torchvision.models import densenet201
+
 # Modelo densenet201 utilizando encoder-decoder
 class DenseNet201EncoderDecoder(nn.Module):
 
@@ -90,3 +92,29 @@ class DenseNet201GradCam(nn.Module):
         
         return out
 
+class DenseNet201GAP(nn.Module):
+    def __init__(self, backbone:nn.Module, n_classes=2) -> None:
+        super().__init__()
+
+        self.features = backbone.features[:-1] # Removendo última batch norm
+        
+        self.modification = nn.Sequential(
+            nn.ReLU(inplace=True),
+            nn.Conv2d(1920, n_classes, 1),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(n_classes, n_classes, 1),
+        )
+
+    def forward(self, x: Tensor) -> Tensor:
+        out = self.features(x)
+        out = self.modification(out)
+        
+        # GAP
+        out = torch.mean(out, dim=(2,3))
+
+        return out
+    
+
+if __name__ == "__main__":
+    m = DenseNet201GAP(densenet201(weights='IMAGENET1K_V1'), 2)
+    print(m)
