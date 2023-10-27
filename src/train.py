@@ -74,6 +74,10 @@ def train(model:nn.Module,
       try:
             #os.mkdir("../output")
             os.mkdir(os.path.join("..", "output"))
+      except OSError as _:
+            pass
+
+      try:
             os.mkdir(output_folder)
       except OSError as _:
             files_on_dir = os.listdir(output_folder)
@@ -93,7 +97,7 @@ def train(model:nn.Module,
                                     break
                               else:
                                     print("\nOperação inválida!\n")
-      
+            
       # Definindo o processo de checkpoint do modelo
       model_checkpoint = ModelCheckpoint(
             output_folder,

@@ -110,6 +110,11 @@ def get_cam(model:nn.Module) -> None:
         
     os.system('cls' if os.name == 'nt' else 'clear')
 
+    conv_forward_output = []
+    def hook(model, input, output):
+        conv_forward_output.append(output) 
+    model.modification.register_forward_hook(hook)
+
     img = Image.open(os.path.join("..", "samples", img_name)).convert("RGB")
 
     preprocess = transforms.Compose([
@@ -123,15 +128,7 @@ def get_cam(model:nn.Module) -> None:
     input_batch = input_batch.to(device)
 
     model = model.to(device)
-
     model.eval()
-
-    # Armazenando a saída da útlima camada convolucional
-    conv_forward_output = []
-    def hook(model, input, output):
-        conv_forward_output.append(output) 
-    model.modification.register_forward_hook(hook)
-
     outputs = model(input_batch)
 
     probs = F.softmax(outputs, dim=1).data.squeeze()
@@ -139,12 +136,12 @@ def get_cam(model:nn.Module) -> None:
     print(f"Classificação do modelo: {probs.argmax()}")
 
     params = list(model.parameters())
-
     weight_softmax = np.squeeze(params[-2].data.cpu().numpy())
+    
     conv_out = conv_forward_output[0].detach().numpy()
     bz, nc, h, w = conv_out.shape
     conv_out = conv_out.reshape((nc, h*w))
-    
+
     cam = weight_softmax[probs.argmax()].dot(conv_out)
     img = cv2.imread(os.path.join("../samples", img_name))
 

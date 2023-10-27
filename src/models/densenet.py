@@ -113,8 +113,3 @@ class DenseNet201GAP(nn.Module):
         out = torch.mean(out, dim=(2,3))
 
         return out
-    
-
-if __name__ == "__main__":
-    m = DenseNet201GAP(densenet201(weights='IMAGENET1K_V1'), 2)
-    print(m)

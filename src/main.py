@@ -4,11 +4,6 @@ from models.densenet import *
 from torchvision.models import densenet201
 from explanations import *
 
-# Hiper parâmetros
-BATCH_SIZE = 16
-EPOCHS = 10
-LR = 0.0001
-
 def __show_invalid_message(message:str) -> None:
     os.system('cls' if os.name == 'nt' else 'clear')
     print(message)
@@ -112,7 +107,7 @@ def op_explain() -> None:
                     break
         except OSError as _:
             os.system('cls' if os.name == 'nt' else 'clear')
-            print("O modelo seleciona não possui nenhum arquivo de treinamento...")
+            print("O modelo selecionado não possui nenhum arquivo de treinamento...")
             input("Pressione ENTER para ir a seção de treinamento")
             op_train()
 
