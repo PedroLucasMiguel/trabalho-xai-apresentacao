@@ -1,9 +1,8 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch import Tensor
 
-from torchvision.models import densenet201
+from torch import Tensor
 
 # Modelo densenet201 utilizando encoder-decoder
 class DenseNet201EncoderDecoder(nn.Module):
@@ -92,12 +91,15 @@ class DenseNet201GradCam(nn.Module):
         
         return out
 
+# Modelo densenet utilizando a camada de GAP
 class DenseNet201GAP(nn.Module):
     def __init__(self, backbone:nn.Module, n_classes=2) -> None:
         super().__init__()
 
         self.features = backbone.features[:-1] # Removendo última batch norm
         
+        # Essa modificação é necessária para obter um número de pesos
+        # e ativações análogos a quantidade de classes no dataset
         self.modification = nn.Sequential(
             nn.ReLU(inplace=True),
             nn.Conv2d(1920, n_classes, 1),

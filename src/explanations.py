@@ -10,8 +10,9 @@ import cv2
 from skimage.segmentation import mark_boundaries
 from matplotlib import pyplot as plt
 
+# Função referente as explicações por GRAD-CAM
 def get_grad_cam(model:nn.Module) -> None:
-    device = "cpu"
+    device = "cpu" # Utilizamos CPU nesse caso para facilitar algumas transformações
 
     samples = os.listdir(os.path.join("..", "samples"))
 
@@ -36,6 +37,7 @@ def get_grad_cam(model:nn.Module) -> None:
         
     os.system('cls' if os.name == 'nt' else 'clear')
 
+    # Pré-processamento
     img = Image.open(os.path.join("..", "samples", img_name)).convert("RGB")
 
     preprocess = transforms.Compose([
@@ -48,10 +50,9 @@ def get_grad_cam(model:nn.Module) -> None:
     input_batch = img.unsqueeze(0)
     input_batch = input_batch.to(device)
 
+    # Criando modelo e fornecendo a imagem para obtenção das classificações
     model = model.to(device)
-
     model.eval()
-
     outputs = model(input_batch)
 
     probs = F.softmax(outputs).detach().cpu().numpy()
@@ -59,15 +60,18 @@ def get_grad_cam(model:nn.Module) -> None:
     print(f"Classificação do modelo: {probs.argmax()}")
     outputs[:, probs.argmax()].backward()
 
+    # Obtendo os gradientes e ativações da rede
     gradients = model.get_activations_gradient()
     gradients = torch.mean(gradients, dim=[0, 2, 3])
     layer_output = model.get_activations(input_batch)
 
+    # Atribuindo os pesos as ativações  a partir do gradiente
     for i in range(len(gradients)):
         layer_output[:, i, :, :] *= gradients[i]
 
     layer_output = layer_output[0, : , : , :]
-
+    
+    # Criando imagem com os mapas
     img = cv2.imread(os.path.join("..", "samples", img_name))
 
     heatmap = torch.mean(layer_output, dim=0).detach().numpy()
@@ -75,15 +79,16 @@ def get_grad_cam(model:nn.Module) -> None:
     heatmap = np.uint8(255 * heatmap)
     heatmap = cv2.resize(heatmap, (img.shape[1], img.shape[0])) 
     heatmap = cv2.applyColorMap(heatmap, cv2.COLORMAP_JET)
-    cv2.imwrite(os.path.join("..", "output", model.__class__.__name__, "gradient.png"), heatmap)
+    cv2.imwrite(os.path.join("..", "output", model.__class__.__name__, f"{img_name}_gradient.png"), heatmap)
     superimposed_img = heatmap * 0.4 + img
-    cv2.imwrite(os.path.join("..", "output", model.__class__.__name__, "map.png"), superimposed_img)
+    cv2.imwrite(os.path.join("..", "output", model.__class__.__name__, f"{img_name}_map.png"), superimposed_img)
 
-    print(f"\nGrad-cam salvo em: ../outputs/{model.__class__.__name__}/[map, gradient].jpg")
+    print(f"\nGrad-cam salvo em: ../outputs/{model.__class__.__name__}/{img_name}_[map, gradient].jpg")
     input("Pressione ENTER para continuar")
 
     pass
 
+# Função referente a obtenção do CAM do modelo
 def get_cam(model:nn.Module) -> None:
     device = "cpu"
 
@@ -110,11 +115,13 @@ def get_cam(model:nn.Module) -> None:
         
     os.system('cls' if os.name == 'nt' else 'clear')
 
+    # Hook para armazenamento das ativações da última camada convolucional
     conv_forward_output = []
     def hook(model, input, output):
         conv_forward_output.append(output) 
     model.modification.register_forward_hook(hook)
 
+    # Pré-processamento
     img = Image.open(os.path.join("..", "samples", img_name)).convert("RGB")
 
     preprocess = transforms.Compose([
@@ -127,6 +134,7 @@ def get_cam(model:nn.Module) -> None:
     input_batch = img.unsqueeze(0)
     input_batch = input_batch.to(device)
 
+    # Obtendo classificação do modelo
     model = model.to(device)
     model.eval()
     outputs = model(input_batch)
@@ -155,11 +163,11 @@ def get_cam(model:nn.Module) -> None:
 
     cam_img = cv2.resize(cam_img, (img.shape[1], img.shape[0])) 
     cam_img = cv2.applyColorMap(cam_img, cv2.COLORMAP_JET)
-    cv2.imwrite(os.path.join("..", "output", model.__class__.__name__, "gradient.png"), cam_img)
+    cv2.imwrite(os.path.join("..", "output", model.__class__.__name__, f"{img_name}_gradient.png"), cam_img)
     superimposed_img = cam_img * 0.4 + img
-    cv2.imwrite(os.path.join("..", "output", model.__class__.__name__, "map.png"), superimposed_img)
+    cv2.imwrite(os.path.join("..", "output", model.__class__.__name__, f"{img_name}_map.png"), superimposed_img)
 
-    print(f"\nGrad-cam salvo em: ../outputs/{model.__class__.__name__}/[map, gradient].jpg")
+    print(f"\nGrad-cam salvo em: ../outputs/{model.__class__.__name__}/{img_name}_[map, gradient].jpg")
     input("Pressione ENTER para continuar")
 
     pass
@@ -237,9 +245,9 @@ def get_lime(model:nn.Module) -> None:
     o_img = np.array(img)
     img_boundry1 = cv2.resize(img_boundry1, dsize=(o_img.shape[1], o_img.shape[0]), interpolation=cv2.INTER_CUBIC)
     plt.imshow(img_boundry1)
-    plt.savefig(os.path.join("..", "output", model.__class__.__name__, "lime.png"))
+    plt.savefig(os.path.join("..", "output", model.__class__.__name__, f"{img_name}_lime.png"))
 
-    print(f"LIME salvo em: ../outputs/{model.__class__.__name__}/lime.png")
+    print(f"LIME salvo em: ../outputs/{model.__class__.__name__}/{img_name}_lime.png")
     input("Pressione ENTER para continuar")
 
     pass

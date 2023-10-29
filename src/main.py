@@ -1,14 +1,16 @@
 import os
 from train import train
+from explanations import *
 from models.densenet import *
 from torchvision.models import densenet201
-from explanations import *
 
+# Função responsável por apresentar mensagens de erro
 def __show_invalid_message(message:str) -> None:
     os.system('cls' if os.name == 'nt' else 'clear')
     print(message)
     input("Pressione ENTER para recomeçar...")
 
+# Menu referente a opção de treinamento
 def op_train() -> None:
 
     while True:
@@ -78,7 +80,7 @@ def op_train() -> None:
         else:
             __show_invalid_message("Batch size inválido!")
 
-
+# Menu referente a opção de exolicações
 def op_explain() -> None:
 
     while True:
@@ -113,6 +115,7 @@ def op_explain() -> None:
 
         os.system('cls' if os.name == 'nt' else 'clear')
 
+        # O modelo DenseNet201GAP pode realizar apenas explicações por LIME e CAM
         if model.__class__.__name__ == "DenseNet201GAP":
             print("Selecione o método de explicação:")
             print("[1] - CAM")
@@ -150,6 +153,7 @@ def op_explain() -> None:
                 __show_invalid_message("Opção inválida!")
                 continue
 
+# Chamando o menu principal
 if __name__ == "__main__":
 
     while True:

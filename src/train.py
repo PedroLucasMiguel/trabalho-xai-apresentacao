@@ -32,6 +32,7 @@ def train(model:nn.Module,
       optimizer = optim.Adam(model.parameters(), lr=lr)
       criterion = nn.CrossEntropyLoss().to(device)
 
+      # Métricas para a avalição do treinamento
       val_metrics = {
         "accuracy": Accuracy(),
         "precision": Precision(average='weighted'),
@@ -47,6 +48,7 @@ def train(model:nn.Module,
       for name, metric in val_metrics.items():
             metric.attach(val_evaluator, name)
 
+      # Barras de treinamento
       train_bar = ProgressBar(desc="Treinando...")
       val_bar = ProgressBar(desc="Validando...")
       train_bar.attach(trainer)
@@ -115,7 +117,7 @@ def train(model:nn.Module,
 
       trainer.run(train_loader, max_epochs=epochs)
 
-      print(f"\nTrain finished for model {model.__class__.__name__}")
+      print(f"\nTreinamento finalizado para o modelo: {model.__class__.__name__}")
 
       # Salvando as métricas em um arquivo .json
       with open(f"{output_folder}/training_results.json", "w") as f:
