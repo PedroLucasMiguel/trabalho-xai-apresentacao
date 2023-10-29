@@ -15,13 +15,13 @@ def op_train() -> None:
 
     while True:
         os.system('cls' if os.name == 'nt' else 'clear')
-        batch_size = int(input("Batch size ( > 0): "))
+        batch_size = int(input("Batch size ( > 0) (Recomendado: 16): "))
 
         if batch_size > 0:
-            epochs = int(input("Epochs ( > 0): "))
+            epochs = int(input("Epochs ( > 0) (Recomendado: 10): "))
 
             if epochs > 0:
-                lr = float(input("Learning rate ( > 0): "))
+                lr = float(input("Learning rate ( > 0) (Recomendado: 0.0001): "))
 
                 if lr > 0:
                     print("\nSelecione o modelo para treinamento: ")

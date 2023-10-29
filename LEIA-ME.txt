@@ -1,0 +1,18 @@
+################################################
+# O código fonte	 aqui apresentado foi desenvolvido em ambiente "Windows",        #
+# para tanto, a instância virtual do Python se encontra pré-configurada para esse      #
+# sistema operacional.												      #
+################################################
+#				Instruções para execução do algoritmo:					      #
+#																      #
+#  1° Inicia uma instância do CMD na pasta raiz do projeto (pasta onde se encontra   #
+#  este arquivo de texto)												      #
+#																      #
+# 2° Execute o seguinte comando: .\venv\Scripts\activate					      #
+#																      #
+# 3° Por fim execute os seguintes comandos em ordem:						      #
+#  - cd src														      #
+#  - python main.py													      #
+#																      #
+# Em seguida o programa apresentara as operações possíveis na aplicação.		      #
+################################################
